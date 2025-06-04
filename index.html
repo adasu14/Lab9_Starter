@@ -47,6 +47,14 @@
       width: 122px;
     }
   </style>
+
+  <!-- TrackJS Snippet -->
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+  <script>
+    window.TrackJS && TrackJS.install({
+      token: "1fc2741206c64438aa396725545fbe9d"
+    });
+  </script>
 </head>
 
 <body>
@@ -88,6 +96,15 @@
   </main>
 
   <script>
+    // Custom Error Class
+    class ValidationError extends Error {
+      constructor(message) {
+        super(message);
+        this.name = "ValidationError";
+      }
+    }
+
+    // Calculator with Try/Catch/Finally and Custom Error
     let form = document.querySelector('form');
     form.addEventListener('submit', e => {
       e.preventDefault();
@@ -95,13 +112,85 @@
       let firstNum = document.querySelector('#first-num').value;
       let secondNum = document.querySelector('#second-num').value;
       let operator = document.querySelector('#operator').value;
-      output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+
+      try {
+        if (firstNum.trim() === "" || secondNum.trim() === "") {
+          throw new ValidationError("Inputs cannot be empty.");
+        }
+
+        if (isNaN(firstNum) || isNaN(secondNum)) {
+          throw new Error("Inputs must be numbers.");
+        }
+
+        let result = eval(`${firstNum} ${operator} ${secondNum}`);
+        if (!isFinite(result)) {
+          throw new Error("Math error: result is not finite.");
+        }
+
+        output.innerHTML = result;
+      } catch (err) {
+        console.error("Calculation error:", err);
+        output.innerHTML = "Error!";
+      } finally {
+        console.log("Calculation attempted.");
+      }
     });
 
+    // Console Button Functionality
     let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
+    const [
+      logBtn, errorBtn, countBtn, warnBtn, assertBtn, clearBtn,
+      dirBtn, dirxmlBtn, groupStartBtn, groupEndBtn, tableBtn,
+      timeStartBtn, timeEndBtn, traceBtn, globalErrorBtn
+    ] = errorBtns;
 
-    // Start your code here
-    // You may move this JS to another file if you wish
+    const sampleData = {
+      name: "Lab 9",
+      version: 1.0,
+      features: ["logging", "error handling", "monitoring"]
+    };
+
+    logBtn.addEventListener('click', () => console.log("Console Log Demo", sampleData));
+    errorBtn.addEventListener('click', () => console.error("Console Error Demo"));
+    countBtn.addEventListener('click', () => console.count("Console Count Demo"));
+    warnBtn.addEventListener('click', () => console.warn("Console Warn Demo"));
+    assertBtn.addEventListener('click', () => console.assert(false, "Assertion failed: This is false"));
+    clearBtn.addEventListener('click', () => console.clear());
+    dirBtn.addEventListener('click', () => console.dir(document.body));
+    dirxmlBtn.addEventListener('click', () => console.dirxml(document.body));
+    groupStartBtn.addEventListener('click', () => {
+      console.group("Console Group Start");
+      console.log("Inside group");
+    });
+    groupEndBtn.addEventListener('click', () => console.groupEnd());
+    tableBtn.addEventListener('click', () => {
+      const data = [
+        { id: 1, name: "Alice" },
+        { id: 2, name: "Bob" }
+      ];
+      console.table(data);
+    });
+    timeStartBtn.addEventListener('click', () => console.time("Timer"));
+    timeEndBtn.addEventListener('click', () => console.timeEnd("Timer"));
+    traceBtn.addEventListener('click', () => {
+      function a() { b(); }
+      function b() { c(); }
+      function c() { console.trace("Console Trace Demo"); }
+      a();
+    });
+
+    // Global Error Handler
+    window.onerror = function (message, source, lineno, colno, error) {
+      console.log("Global error caught!");
+      console.log("Message:", message);
+      console.log("Source:", source);
+      console.log("Line:", lineno, "Column:", colno);
+      console.log("Error object:", error);
+    };
+
+    globalErrorBtn.addEventListener('click', () => {
+      nonExistentFunction(); // Triggers global error
+    });
   </script>
 </body>
 
